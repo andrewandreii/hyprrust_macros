@@ -1,7 +1,7 @@
 use core::panic;
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::parse_macro_input;
+use quote::{format_ident, quote};
+use syn::{parse_macro_input, ItemEnum};
 use syn::{Attribute, DeriveInput, Expr, ExprLit, Lit, Meta};
 
 fn parse_command(derive: &DeriveInput) -> Option<String> {
@@ -66,6 +66,49 @@ pub fn hyprland_data_derive(input: TokenStream) -> TokenStream {
         impl HyprlandData for #name {
             fn get_command() -> &'static str {
                 return #name_str;
+            }
+        }
+    }
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn generate_enum_types(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let enum_ = parse_macro_input!(item as ItemEnum);
+    //let attr = parse_macro_input!(attr with Attribute::parse_outer);
+
+    let name = format_ident!("{}Type", enum_.ident.to_string());
+
+    let (types, type_conversion): (Vec<_>, Vec<_>) = enum_
+        .variants
+        .iter()
+        .map(|v| {
+            let type_str_name = &v.ident.to_string().to_lowercase();
+            let ident = &v.ident;
+            (
+                ident,
+                quote! {
+                    #name::#ident => #type_str_name
+                },
+            )
+        })
+        .unzip();
+
+    quote! {
+        #enum_
+        pub enum #name {
+            #(#types),*
+        }
+        impl #name {
+            pub fn get_name(&self) -> &'static str {
+                match self {
+                    #(#type_conversion),*
+                }
+            }
+        }
+        impl AsRef<str> for #name {
+            fn as_ref(&self) -> &str {
+                self.get_name()
             }
         }
     }
