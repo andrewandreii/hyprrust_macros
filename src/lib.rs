@@ -96,6 +96,7 @@ pub fn generate_enum_types(_attr: TokenStream, item: TokenStream) -> TokenStream
 
     quote! {
         #enum_
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         pub enum #name {
             #(#types),*
         }
@@ -106,9 +107,9 @@ pub fn generate_enum_types(_attr: TokenStream, item: TokenStream) -> TokenStream
                 }
             }
         }
-        impl AsRef<str> for #name {
-            fn as_ref(&self) -> &str {
-                self.get_name()
+        impl AsRef<#name> for #name {
+            fn as_ref(&self) -> &#name {
+                &self
             }
         }
     }
