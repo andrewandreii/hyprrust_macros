@@ -1,27 +1,27 @@
 use core::panic;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, ItemEnum};
 use syn::{Attribute, DeriveInput, Expr, ExprLit, Lit, Meta};
+use syn::{ItemEnum, parse_macro_input};
 
 fn parse_command(derive: &DeriveInput) -> Option<String> {
     let mut attr: Option<&Attribute> = None;
     for a in &derive.attrs {
         if let Meta::NameValue(name) = &a.meta {
             if name.path.is_ident("command") {
-                attr = Some(&a);
+                attr = Some(a);
             }
         }
     }
 
     if let Some(attr) = attr {
         if let Meta::NameValue(name) = &attr.meta {
-            if let Expr::Lit(ExprLit { attrs: _, lit }) = &name.value {
-                if let Lit::Str(lit_str) = lit {
-                    return Some(lit_str.value());
-                } else {
-                    panic!("command expects a string");
-                }
+            if let Expr::Lit(ExprLit {
+                attrs: _,
+                lit: Lit::Str(lit_str),
+            }) = &name.value
+            {
+                return Some(lit_str.value());
             } else {
                 panic!("command expects a string");
             }
@@ -30,7 +30,7 @@ fn parse_command(derive: &DeriveInput) -> Option<String> {
         }
     };
 
-    return None;
+    None
 }
 
 #[proc_macro_derive(HyprlandDataWithArgument, attributes(command))]
@@ -52,6 +52,7 @@ pub fn hyprland_data_with_argument_derive(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
 #[proc_macro_derive(HyprlandData, attributes(command))]
 pub fn hyprland_data_derive(input: TokenStream) -> TokenStream {
     let derive = parse_macro_input!(input as DeriveInput);
@@ -75,7 +76,6 @@ pub fn hyprland_data_derive(input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn generate_enum_types(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let enum_ = parse_macro_input!(item as ItemEnum);
-    //let attr = parse_macro_input!(attr with Attribute::parse_outer);
 
     let name = format_ident!("{}Type", enum_.ident.to_string());
 

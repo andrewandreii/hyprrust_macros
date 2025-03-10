@@ -1,7 +1,10 @@
 [package]
 name = "hyprrust_macros"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+license-file = "LICENCE"
+description = "A helper crate for the hyprrust crate. Not meant to be used by itself."
+repository = "https://github.com/andrewandreii/hyprrust_macros"
 
 [lib]
 proc-macro = true
