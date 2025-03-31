@@ -109,8 +109,8 @@ pub fn hyprland_data_with_argument_derive(input: TokenStream) -> TokenStream {
         impl HyprlandDataWithArgument for #name {
             type Argument = #arg_type;
 
-            fn get_command(arg: String) -> String {
-                return format!("{} {}", #name_str, arg).to_owned();
+            fn get_command(arg: Self::Argument) -> String {
+                return format!("{} {}", #name_str, arg.to_argument_string()).to_owned();
             }
         }
     }

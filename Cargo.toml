@@ -1,6 +1,6 @@
 [package]
 name = "hyprrust_macros"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license-file = "LICENSE"
 description = "A helper crate for the hyprrust crate. Not meant to be used by itself."
